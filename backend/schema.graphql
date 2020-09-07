@@ -1,0 +1,36 @@
+type Buyer{
+    id
+    name
+    age
+    DType
+    date:DateTime!
+}
+
+type Product {
+    id
+    name
+    price
+    DType
+    date
+}
+
+type Transaction {
+    id
+    buyer_id
+    ip
+    device
+    products
+    DType
+    date
+}
+
+device: String .
+id: string .
+name: string .
+age: int.
+DType: string .
+date: datetime .
+products: [String] .
+ip: String .
+buyer_id: uid .
+price: float .

@@ -6,6 +6,8 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/middleware"
+	"github.com/maet98/sellerApp/models/buyer"
 	"github.com/maet98/sellerApp/newsfeed"
 )
 
@@ -13,13 +15,15 @@ func main() {
 	port := "3000"
 	feed := newsfeed.New()
 	r := chi.NewRouter()
+	r.Use(middleware.RequestID)
+	r.Use(middleware.RealIP)
+	r.Use(middleware.Logger)
+	r.Use(middleware.Recoverer)
+
 	feed.Add(newsfeed.Item{
 		Title: "Hello",
 		Post:  "World",
 	})
-
-	r.Use(middleware.New
-
 	// Get newsfeed
 	r.Get("/newsfeed", func(w http.ResponseWriter, r *http.Request) {
 		items := feed.GetAll()
@@ -37,6 +41,27 @@ func main() {
 		})
 
 		w.Write([]byte("Good Job"))
+	})
+
+	r.Get("/buyers", func(w http.ResponseWriter, r *http.Request) {
+		buyers, err := buyer.FindAll()
+		if err != nil {
+			w.Write([]byte(err.Error()))
+			return
+		}
+		w.Header().Add("Content-Type", "application/json")
+		w.Write(buyers)
+	})
+
+	r.Get("/buyers/{buyerId}", func(w http.ResponseWriter, r *http.Request) {
+		BuyerID := chi.URLParam(r, "buyerId")
+		buyers, err := buyer.GetById(BuyerID)
+		if err != nil {
+			w.Write([]byte(err.Error()))
+			return
+		}
+		w.Header().Add("Content-Type", "application/json")
+		w.Write(buyers)
 	})
 
 	fmt.Println("Serving on port: " + port)
