@@ -7,6 +7,7 @@ import (
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
+	"github.com/go-chi/cors"
 	"github.com/maet98/sellerApp/models/buyer"
 	"github.com/maet98/sellerApp/newsfeed"
 )
@@ -15,6 +16,17 @@ func main() {
 	port := "3000"
 	feed := newsfeed.New()
 	r := chi.NewRouter()
+	cors := cors.New(cors.Options{
+		AllowedOrigins:   []string{"*"}, // you can add routes here www.example.com
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+		ExposedHeaders:   []string{"Link"},
+		AllowCredentials: true,
+		MaxAge:           300, // Maximum value not ignored by any of major browsers
+	})
+
+	r.Use(cors.Handler)
+
 	r.Use(middleware.RequestID)
 	r.Use(middleware.RealIP)
 	r.Use(middleware.Logger)
