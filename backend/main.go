@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 
@@ -9,12 +8,10 @@ import (
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/cors"
 	"github.com/maet98/sellerApp/models/buyer"
-	"github.com/maet98/sellerApp/newsfeed"
 )
 
 func main() {
 	port := "3000"
-	feed := newsfeed.New()
 	r := chi.NewRouter()
 	cors := cors.New(cors.Options{
 		AllowedOrigins:   []string{"*"}, // you can add routes here www.example.com
@@ -31,29 +28,6 @@ func main() {
 	r.Use(middleware.RealIP)
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
-
-	feed.Add(newsfeed.Item{
-		Title: "Hello",
-		Post:  "World",
-	})
-	// Get newsfeed
-	r.Get("/newsfeed", func(w http.ResponseWriter, r *http.Request) {
-		items := feed.GetAll()
-		json.NewEncoder(w).Encode(items)
-	})
-
-	// Post newsfeed
-	r.Post("/newsfeed", func(w http.ResponseWriter, r *http.Request) {
-		request := map[string]string{}
-		json.NewDecoder(r.Body).Decode(&request)
-
-		feed.Add(newsfeed.Item{
-			Title: request["title"],
-			Post:  request["post"],
-		})
-
-		w.Write([]byte("Good Job"))
-	})
 
 	r.Get("/buyers", func(w http.ResponseWriter, r *http.Request) {
 		buyers, err := buyer.FindAll()
