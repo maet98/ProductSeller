@@ -1,23 +1,36 @@
-package main
+package config
 
 import (
-	"fmt"
-
-	"github.com/tkanos/gonfig"
+	"encoding/json"
+	"io/ioutil"
+	"log"
 )
 
 type Configuration struct {
-	ip   string
-	port string
+	Ip   string `json:"IP"`
+	Port string `json:"PORT"`
 }
 
-func GetConfig(params ...string) Configuration {
-	configuration := Configuration{}
-	env := "dev"
-	if len(params) > 0 {
-		env = params[0]
+var Config Configuration
+
+func GetConfig(params ...string) {
+	buf, err := ioutil.ReadFile("config/config.json")
+
+	if err != nil {
+		log.Fatal(err)
 	}
-	filename := fmt.Sprintf("./%s_config.json", env)
-	gonfig.GetConf(filename, &configuration)
-	return configuration
+
+	err = json.Unmarshal([]byte(buf), &Config)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	log.Printf("%s", Config.Ip)
+
+}
+
+func (conf Configuration) Url() string {
+	log.Println(conf.Ip)
+	return conf.Ip + ":" + conf.Port
 }

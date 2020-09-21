@@ -6,19 +6,20 @@ import (
 
 	"github.com/dgraph-io/dgo/v200"
 	"github.com/dgraph-io/dgo/v200/protos/api"
+	"github.com/maet98/sellerApp/config"
 	"google.golang.org/grpc"
 )
 
 func FindAll() ([]byte, error) {
 	ctx := context.TODO()
-	conn, err := grpc.Dial("10.0.0.6:9080", grpc.WithInsecure())
+	conn, err := grpc.Dial(config.Config.Url(), grpc.WithInsecure())
 	if err != nil {
 		log.Println("hi")
 		log.Fatal(err)
 	}
 	defer conn.Close()
-	Client := dgo.NewDgraphClient(api.NewDgraphClient(conn))
-	txn := Client.NewTxn()
+	client := dgo.NewDgraphClient(api.NewDgraphClient(conn))
+	txn := client.NewTxn()
 	defer txn.Discard(ctx)
 
 	query := `query {
@@ -39,7 +40,7 @@ func FindAll() ([]byte, error) {
 
 func GetById(id string) ([]byte, error) {
 	ctx := context.TODO()
-	conn, err := grpc.Dial("10.0.0.6:9080", grpc.WithInsecure())
+	conn, err := grpc.Dial(config.Config.Url(), grpc.WithInsecure())
 	if err != nil {
 		log.Println("hi")
 		log.Fatal(err)
@@ -51,38 +52,43 @@ func GetById(id string) ([]byte, error) {
 
 	query := `
 		query var($a: string){
-		  var(func: uid(0x58fe)){
+			var(func: uid($a)){
 			~buyer_id {
-			  ips as ip
+				ips as ip
+				Products {
+				  myProducts as uid
+				}
 			}
 		  }
 		  
-		  buyer(func: uid(0x58fe)){
-			uid
-			name
-			Purchases: ~buyer_id {
-			  uid
-			  ip
-			  device
-			  Products {
+			buyer(func: uid($a)){
 				uid
 				name
-				price
+				Purchases: ~buyer_id {
+				  uid
+				  ip
+				  Date
+				  device
+				  Products {
+						uid
+						name
+						price
+					}
 				}
 			}
-			}
 		  
-			others(func: eq(ip,val(ips))){
+			var(func: eq(ip,val(ips))){
 				relation as uid
-			ip
-			Buyer: buyer_id {
-			  uid
-			  name
-			}
+					others as Buyer: buyer_id @filter(not(uid($a)))
+			  }
+      
+		  Others(func: uid(others)){
+			uid
+			name
 		  }
 		  
 			var(func:uid(relation)){
-				Products {
+				Products @filter(not(uid(myProducts))) {
 					recommended_products as uid
 				}
 			}
@@ -91,6 +97,7 @@ func GetById(id string) ([]byte, error) {
 			uid
 			name
 			price
+			Date
 		  }
 		}`
 

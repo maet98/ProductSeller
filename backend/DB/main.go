@@ -1,71 +1,61 @@
-package DB
+package main
 
 import (
+	"context"
+	"io/ioutil"
 	"log"
+	"os/exec"
 
+	"github.com/dgraph-io/dgo/v200"
+	"github.com/dgraph-io/dgo/v200/protos/api"
 	"google.golang.org/grpc"
 )
 
-func GetClient() *grpc.ClientConn {
+func UploadData() {
+
+	exec.Command("g++", "./data/parser.cpp")
+	cmd := exec.Command("./data/a.out")
+	stdout, err := cmd.Output()
+	if err != nil {
+		log.Print("error")
+	}
+	log.Printf("%s", stdout)
+}
+
+func Setup() {
 	conn, err := grpc.Dial("10.0.0.6:9080", grpc.WithInsecure())
 	if err != nil {
 		log.Println("hi")
 		log.Fatal(err)
 	}
 	defer conn.Close()
-	return conn
-}
-
-/*
-func Setup() {
-	schema := `
-		type Buyer{
-			id
-			name
-			age
-			DType
-			created_at
-		}
-
-		type Product {
-			id
-			name
-			price
-			DType
-			created_at
-		}
-
-		type Transaction {
-			id
-			buyer_id
-			ip
-			device
-			products
-			DType
-			created_at
-		}
-
-		device: string .
-		id: string @index(exact) .
-		name: string @index(exact) .
-		age: int .
-		DType: string index(exact) .
-		date: datetime .
-		products: [string] .
-		ip: string .
-		buyer_id: uid .
-		price: float .
-	`
 
 	ctx := context.Background()
-	op := &api.Operation{
-		Schema:          schema,
-		RunInBackground: true,
-	}
+	client := dgo.NewDgraphClient(api.NewDgraphClient(conn))
+	txn := client.NewTxn()
+	defer txn.Discard(ctx)
 
-	err := GetClient().Alter(ctx, op)
+	buffer, err := ioutil.ReadFile("./schema.graphql")
 	if err != nil {
 		log.Fatal(err)
 	}
+	schema := string(buffer)
+	log.Println(schema)
+
+	/*
+		op := &api.Operation{
+			Schema:          schema,
+			RunInBackground: true,
+		}
+
+		err = client.Alter(ctx, op)
+		if err != nil {
+			log.Fatal(err)
+		}
+	*/
+	UploadData()
 }
-*/
+
+func main() {
+	Setup()
+}

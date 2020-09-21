@@ -3,17 +3,28 @@
     <v-card-title class="justify-center">
         <h1>Buyers</h1>
     </v-card-title>
+    <div class="text-center">
+        <v-pagination
+          :length="length"
+          v-on:next="updateVisibles()"
+          v-on:prev="updateVisibles()"
+          v-on:input="updateVisibles()"
+          v-model="current_page"
+          circle
+        ></v-pagination>
+      </div>
     <v-card
       class="d-flex  align-content-space-around justify-center flex-wrap"
       color="grey lighten-2"
       flat
       tile
       min-height="400"
+      v-if="!this.loading"
     >
         <v-card
           class="pa-2 margin"
           max-width="344"
-          v-for="item in info"
+          v-for="item in visibles"
           :key="item.uid"
         >
           <v-card-text>
@@ -34,29 +45,50 @@
           </v-card-actions>
         </v-card>
     </v-card>
+    <div v-else class="text-center">
+        <v-progress-circular
+          indeterminate
+          color="primary"
+        >loading</v-progress-circular>
+    </div>
   </div>
 </template>
 
 <script>
-// @ is an alias to /src
 import axios from "axios";
 
 export default {
   name: "Home",
   data() {
     return {
-      info: null
+        info: null,
+        loading: false,
+        current_page: 1,
+        page_size: 15,
+        visibles: [],
+        length: 0
     };
   },
   mounted() {
+      this.loading = true;
     axios
       .get("http://localhost:3000/buyers")
       .then(response => {
-        console.log(response);
-        this.info = response.data.Buyers;
+          this.loading = false;
+          this.info = response.data.Buyers;
+          this.length = Math.ceil(this.info.length / this.page_size);
+          this.updateVisibles();
       })
-      .catch(err => console.log(err));
-  }
+      .catch(err =>{
+          this.loading = false;
+          console.log(err)
+      });
+  },
+    methods: {
+        updateVisibles() {
+            this.visibles = this.info.slice((this.current_page-1) * this.page_size, this.current_page * this.page_size);
+        }
+    }
 };
 </script>
 

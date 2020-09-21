@@ -7,12 +7,14 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/cors"
+	"github.com/maet98/sellerApp/config"
 	"github.com/maet98/sellerApp/models/buyer"
 )
 
 func main() {
 	port := "3000"
 	r := chi.NewRouter()
+	config.GetConfig()
 	cors := cors.New(cors.Options{
 		AllowedOrigins:   []string{"*"}, // you can add routes here www.example.com
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},

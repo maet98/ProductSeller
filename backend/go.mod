@@ -11,7 +11,7 @@ require (
 	github.com/go-chi/cors v1.1.1 // indirect
 	github.com/golang/protobuf v1.4.2 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
-	github.com/tkanos/gonfig v0.0.0-20181112185242-896f3d81fadf // indirect
+	github.com/tkanos/gonfig v0.0.0-20181112185242-896f3d81fadf
 	golang.org/x/net v0.0.0-20200822124328-c89045814202 // indirect
 	golang.org/x/sys v0.0.0-20200828081204-131dc92a58d5 // indirect
 	golang.org/x/text v0.3.3 // indirect
