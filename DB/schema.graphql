@@ -1,0 +1,30 @@
+<DType>: string @index(exact) .
+<Date>: datetime .
+<Products>: [uid] .
+<age>: int .
+<buyer_id>: uid @reverse .
+<device>: string .
+<ip>: string @index(exact) .
+<name>: string @index(exact) .
+<price>: float .
+
+type Buyer {
+	name
+	age
+	DType
+	Date
+}
+type Product {
+	name
+	price
+	DType
+	Date
+}
+type Transaction {
+	buyer_id
+	ip
+	device
+    Products
+	DType
+	Date
+}

@@ -211,10 +211,10 @@ int main() {
     ofstream query;
     string date = currentDate();
     query.open("query.json");
-    query << "{ set \n     {" << endl;
+    query << "{ set" << endl << "{" << endl;
     buyer(query, date);
     products(query, date);
     transaction(query, date);
-    query << "  }" << endl << "}";
+    query << "} \n }";
     query.close();
 }
